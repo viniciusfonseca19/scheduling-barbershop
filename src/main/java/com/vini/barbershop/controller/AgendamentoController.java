@@ -5,6 +5,8 @@ import com.vini.barbershop.service.AgendamentoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/agendamentos")
 @RequiredArgsConstructor
@@ -20,5 +22,9 @@ public class AgendamentoController {
     @DeleteMapping("/{id}")
     public void cancelar(@PathVariable Long id) {
         service.cancelarAgendamento(id);
+    }
+    @GetMapping
+    public List<Agendamento> listar() {
+        return service.listarAgendamentos();
     }
 }
