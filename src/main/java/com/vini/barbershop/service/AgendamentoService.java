@@ -3,8 +3,10 @@ package com.vini.barbershop.service;
 import com.vini.barbershop.dto.request.AgendamentoRequestDTO;
 import com.vini.barbershop.dto.response.AgendamentoResponseDTO;
 import com.vini.barbershop.entity.Agendamento;
+import com.vini.barbershop.entity.Usuario;
 import com.vini.barbershop.mapper.AgendamentoMapper;
 import com.vini.barbershop.repository.AgendamentoRepository;
+import com.vini.barbershop.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,23 +20,30 @@ public class AgendamentoService {
 
     private final AgendamentoRepository repository;
     private final AgendamentoMapper mapper;
+    private final UsuarioRepository usuarioRepository;
 
     public AgendamentoResponseDTO criarAgendamento(AgendamentoRequestDTO dto) {
 
         Agendamento agendamento = mapper.toEntity(dto);
 
-        // Regra: não permitir data no passado
+        //  Busca usuário
+        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        agendamento.setUsuario(usuario);
+
+        //  Regra: não permitir data no passado
         if (agendamento.getData().isBefore(LocalDate.now())) {
             throw new RuntimeException("Não é possível agendar para uma data no passado");
         }
 
-        // Regra: não permitir horário passado no mesmo dia
+        //  Regra: não permitir horário passado no mesmo dia
         if (agendamento.getData().isEqual(LocalDate.now()) &&
                 agendamento.getHorario().isBefore(LocalTime.now())) {
             throw new RuntimeException("Não é possível agendar para um horário que já passou");
         }
 
-        // Regra: não permitir horário duplicado
+        //  Regra: não permitir horário duplicado
         boolean existe = repository.existsByDataAndHorario(
                 agendamento.getData(),
                 agendamento.getHorario()

@@ -8,6 +8,9 @@ import java.time.LocalTime;
 
 public class AgendamentoRequestDTO {
 
+    @NotNull
+    private Long usuarioId;
+
     @NotBlank
     private String nomeCliente;
 
@@ -50,5 +53,13 @@ public class AgendamentoRequestDTO {
 
     public void setTipoCorte(String tipoCorte) {
         this.tipoCorte = tipoCorte;
+    }
+
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
     }
 }

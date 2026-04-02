@@ -17,6 +17,10 @@ import java.time.LocalTime;
 @Builder
 public class Agendamento {
 
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
