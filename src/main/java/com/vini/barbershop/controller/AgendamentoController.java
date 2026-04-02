@@ -4,6 +4,7 @@ import com.vini.barbershop.entity.Agendamento;
 import com.vini.barbershop.service.AgendamentoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class AgendamentoController {
     private final AgendamentoService service;
 
     @PostMapping
-    public Agendamento criar(@RequestBody Agendamento agendamento) {
+    public Agendamento criar(@RequestBody @Valid Agendamento agendamento) {
         return service.criarAgendamento(agendamento);
     }
 
@@ -23,8 +24,10 @@ public class AgendamentoController {
     public void cancelar(@PathVariable Long id) {
         service.cancelarAgendamento(id);
     }
+
     @GetMapping
     public List<Agendamento> listar() {
         return service.listarAgendamentos();
     }
+
 }
