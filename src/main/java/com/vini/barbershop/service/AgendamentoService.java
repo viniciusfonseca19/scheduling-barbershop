@@ -22,28 +22,27 @@ public class AgendamentoService {
     private final AgendamentoMapper mapper;
     private final UsuarioRepository usuarioRepository;
 
+    // log do usuario(simulação)
+    private final UsuarioLogadoService usuarioLogadoService;
+
     public AgendamentoResponseDTO criarAgendamento(AgendamentoRequestDTO dto) {
 
         Agendamento agendamento = mapper.toEntity(dto);
 
-        //  Busca usuário
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         agendamento.setUsuario(usuario);
 
-        //  Regra: não permitir data no passado
         if (agendamento.getData().isBefore(LocalDate.now())) {
             throw new RuntimeException("Não é possível agendar para uma data no passado");
         }
 
-        //  Regra: não permitir horário passado no mesmo dia
         if (agendamento.getData().isEqual(LocalDate.now()) &&
                 agendamento.getHorario().isBefore(LocalTime.now())) {
             throw new RuntimeException("Não é possível agendar para um horário que já passou");
         }
 
-        //  Regra: não permitir horário duplicado
         boolean existe = repository.existsByDataAndHorario(
                 agendamento.getData(),
                 agendamento.getHorario()
@@ -61,6 +60,18 @@ public class AgendamentoService {
     public List<AgendamentoResponseDTO> listarAgendamentos() {
         return repository.findAll()
                 .stream()
+                .map(mapper::toResponseDTO)
+                .toList();
+    }
+
+    // listagem de agendamentos
+    public List<AgendamentoResponseDTO> listarMeusAgendamentos() {
+
+        Long usuarioId = usuarioLogadoService.getId();
+
+        List<Agendamento> agendamentos = repository.findByUsuarioId(usuarioId);
+
+        return agendamentos.stream()
                 .map(mapper::toResponseDTO)
                 .toList();
     }

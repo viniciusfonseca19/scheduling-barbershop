@@ -3,8 +3,8 @@ package com.vini.barbershop.controller;
 import com.vini.barbershop.dto.request.AgendamentoRequestDTO;
 import com.vini.barbershop.dto.response.AgendamentoResponseDTO;
 import com.vini.barbershop.service.AgendamentoService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,17 +17,24 @@ public class AgendamentoController {
     private final AgendamentoService service;
 
     @PostMapping
-    public AgendamentoResponseDTO criar(@RequestBody @Valid AgendamentoRequestDTO dto) {
-        return service.criarAgendamento(dto);
+    public ResponseEntity<AgendamentoResponseDTO> criar(@RequestBody AgendamentoRequestDTO dto) {
+        return ResponseEntity.ok(service.criarAgendamento(dto));
     }
 
     @GetMapping
-    public List<AgendamentoResponseDTO> listar() {
-        return service.listarAgendamentos();
+    public ResponseEntity<List<AgendamentoResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(service.listarAgendamentos());
+    }
+
+    // endpoint de listagem
+    @GetMapping("/me")
+    public ResponseEntity<List<AgendamentoResponseDTO>> listarMeusAgendamentos() {
+        return ResponseEntity.ok(service.listarMeusAgendamentos());
     }
 
     @DeleteMapping("/{id}")
-    public void cancelar(@PathVariable Long id) {
+    public ResponseEntity<Void> cancelar(@PathVariable Long id) {
         service.cancelarAgendamento(id);
+        return ResponseEntity.noContent().build();
     }
 }
