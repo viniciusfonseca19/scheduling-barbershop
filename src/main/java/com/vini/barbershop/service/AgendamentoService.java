@@ -17,6 +17,15 @@ public class AgendamentoService {
 
     public Agendamento criarAgendamento(Agendamento agendamento) {
 
+        if (agendamento.getData().isBefore(LocalDate.now())) {
+            throw new RuntimeException("Não é possível agendar para uma data no passado");
+        }
+
+        if (agendamento.getData().isEqual(LocalDate.now()) &&
+                agendamento.getHorario().isBefore(LocalTime.now())) {
+            throw new RuntimeException("Não é possível agendar para um horário que já passou");
+        }
+
         //  não permiti horário duplicado
         repository.findByDataAndHorario(agendamento.getData(), agendamento.getHorario())
                 .ifPresent(a -> {
