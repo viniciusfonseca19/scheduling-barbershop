@@ -8,9 +8,10 @@ import com.vini.barbershop.exception.BusinessException;
 import com.vini.barbershop.exception.ResourceNotFoundException;
 import com.vini.barbershop.mapper.UsuarioMapper;
 import com.vini.barbershop.repository.UsuarioRepository;
+import com.vini.barbershop.specification.UsuarioSpecification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class UsuarioService {
         // criptografar senha
         usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
 
-        // 👤 role padrão
+        // role padrão
         usuario.setRole(Role.CLIENTE);
 
         // usuário começa desbloqueado
@@ -46,12 +47,23 @@ public class UsuarioService {
         return mapper.toResponseDTO(salvo);
     }
 
-    // lista usuários + paginação
-    public Page<UsuarioResponseDTO> listarUsuarios(int page, int size) {
+    // lista usuários com paginação + filtro
+    public Page<UsuarioResponseDTO> listarUsuarios(String nome, String email, int page, int size, String sort) {
 
-        PageRequest pageable = PageRequest.of(page, size);
+        Sort sorting = Sort.by("id");
 
-        return repository.findAll(pageable)
+        if (sort != null && !sort.isBlank()) {
+            String[] sortParams = sort.split(",");
+            sorting = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sorting);
+
+        Specification<Usuario> spec = Specification
+                .where(UsuarioSpecification.nomeContains(nome))
+                .and(UsuarioSpecification.emailContains(email));
+
+        return repository.findAll(spec, pageable)
                 .map(mapper::toResponseDTO);
     }
 

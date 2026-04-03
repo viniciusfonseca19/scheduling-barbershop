@@ -27,12 +27,14 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDTO>> listar(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String email,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id,asc") String sort
     ) {
-        return ResponseEntity.ok(service.listarUsuarios(page, size));
+        return ResponseEntity.ok(service.listarUsuarios(nome, email, page, size, sort));
     }
-
     // busca por id
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
