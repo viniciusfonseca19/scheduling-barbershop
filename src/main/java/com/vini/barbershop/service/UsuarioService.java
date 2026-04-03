@@ -54,7 +54,15 @@ public class UsuarioService {
 
         if (sort != null && !sort.isBlank()) {
             String[] sortParams = sort.split(",");
-            sorting = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
+
+            if (sortParams.length == 2) {
+                sorting = Sort.by(
+                        Sort.Direction.fromString(sortParams[1]),
+                        sortParams[0]
+                );
+            } else {
+                sorting = Sort.by(sortParams[0]);
+            }
         }
 
         Pageable pageable = PageRequest.of(page, size, sorting);
