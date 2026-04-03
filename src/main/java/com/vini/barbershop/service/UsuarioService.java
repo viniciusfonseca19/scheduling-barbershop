@@ -9,10 +9,10 @@ import com.vini.barbershop.exception.ResourceNotFoundException;
 import com.vini.barbershop.mapper.UsuarioMapper;
 import com.vini.barbershop.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -46,12 +46,13 @@ public class UsuarioService {
         return mapper.toResponseDTO(salvo);
     }
 
-    // lista usuários
-    public List<UsuarioResponseDTO> listarUsuarios() {
-        return repository.findAll()
-                .stream()
-                .map(mapper::toResponseDTO)
-                .toList();
+    // lista usuários + paginação
+    public Page<UsuarioResponseDTO> listarUsuarios(int page, int size) {
+
+        PageRequest pageable = PageRequest.of(page, size);
+
+        return repository.findAll(pageable)
+                .map(mapper::toResponseDTO);
     }
 
     // busca por id
