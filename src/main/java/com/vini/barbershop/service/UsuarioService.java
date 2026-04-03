@@ -24,10 +24,10 @@ public class UsuarioService {
 
         Usuario usuario = mapper.toEntity(dto);
 
-        // 🔐 Criptografar senha
+        //  Criptografar senha
         usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
 
-        // 🔥 Definir role padrão
+        //  Definir role padrão
         usuario.setRole(Role.CLIENTE);
 
         Usuario salvo = repository.save(usuario);
