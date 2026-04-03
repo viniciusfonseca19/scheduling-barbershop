@@ -1,4 +1,4 @@
-package com.vini.barbershop.security;
+package com.vini.barbershop.config;
 
 import com.vini.barbershop.entity.Usuario;
 import com.vini.barbershop.repository.UsuarioRepository;
@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return User.builder()
                 .username(usuario.getEmail())
                 .password(usuario.getSenha())
-                .roles(usuario.getRole().name())
+                .roles(usuario.getRole().name()) // 🔥 ESSENCIAL
                 .build();
     }
 }
