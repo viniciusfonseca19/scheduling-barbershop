@@ -4,6 +4,8 @@ import com.vini.barbershop.dto.request.UsuarioRequestDTO;
 import com.vini.barbershop.dto.response.UsuarioResponseDTO;
 import com.vini.barbershop.entity.Usuario;
 import com.vini.barbershop.entity.enums.Role;
+import com.vini.barbershop.exception.BusinessException;
+import com.vini.barbershop.exception.ResourceNotFoundException;
 import com.vini.barbershop.mapper.UsuarioMapper;
 import com.vini.barbershop.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,15 +22,20 @@ public class UsuarioService {
     private final UsuarioMapper mapper;
     private final PasswordEncoder passwordEncoder;
 
-    // criar usuário
+    // cria usuário
     public UsuarioResponseDTO criarUsuario(UsuarioRequestDTO dto) {
+
+        // validar email duplicado
+        if (repository.existsByEmail(dto.getEmail())) {
+            throw new BusinessException("Email já cadastrado");
+        }
 
         Usuario usuario = mapper.toEntity(dto);
 
         // criptografar senha
         usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
 
-        // role padrão
+        // 👤 role padrão
         usuario.setRole(Role.CLIENTE);
 
         // usuário começa desbloqueado
@@ -39,7 +46,7 @@ public class UsuarioService {
         return mapper.toResponseDTO(salvo);
     }
 
-    // listar usuário
+    // lista usuários
     public List<UsuarioResponseDTO> listarUsuarios() {
         return repository.findAll()
                 .stream()
@@ -47,33 +54,36 @@ public class UsuarioService {
                 .toList();
     }
 
-    // buscar usuário
+    // busca por id
     public UsuarioResponseDTO buscarPorId(Long id) {
         Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         return mapper.toResponseDTO(usuario);
     }
 
-    // deletar usuário
+    // deleta usuário
     public void deletarUsuario(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuário não encontrado");
+        }
         repository.deleteById(id);
     }
 
-    // bloquear usuárrio
+    // bloqueia usuário
     public void bloquearUsuario(Long id) {
         Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         usuario.setBloqueado(true);
 
         repository.save(usuario);
     }
 
-    // desbloquear usuário
+    // desbloqueia usuário
     public void desbloquearUsuario(Long id) {
         Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         usuario.setBloqueado(false);
 
