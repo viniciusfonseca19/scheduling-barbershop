@@ -28,7 +28,7 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<Page<UsuarioResponseDTO>> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "5") int size
     ) {
         return ResponseEntity.ok(service.listarUsuarios(page, size));
     }
