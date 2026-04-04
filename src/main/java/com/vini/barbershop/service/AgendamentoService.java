@@ -34,18 +34,15 @@ public class AgendamentoService {
         agendamento.setUsuario(usuarioLogado);
         agendamento.setStatus(StatusAgendamento.AGENDADO);
 
-        //Regra: não permitir data no passado
         if (agendamento.getData().isBefore(LocalDate.now())) {
             throw new BusinessException("Não é possível agendar para uma data no passado");
         }
 
-        //Regra: horário passado no mesmo dia
         if (agendamento.getData().isEqual(LocalDate.now()) &&
                 agendamento.getHorario().isBefore(LocalTime.now())) {
             throw new BusinessException("Não é possível agendar para um horário que já passou");
         }
 
-        //Regra: não permitir horário duplicado
         boolean existe = repository.existsByDataAndHorario(
                 agendamento.getData(),
                 agendamento.getHorario()
@@ -60,7 +57,6 @@ public class AgendamentoService {
         return mapper.toResponseDTO(salvo);
     }
 
-    //ADMIN vê todos | CLIENTE vê só os seus
     public List<AgendamentoResponseDTO> listarMeusAgendamentos() {
 
         Usuario usuario = usuarioLogadoService.getUsuarioLogado();
@@ -85,7 +81,6 @@ public class AgendamentoService {
 
         Usuario usuario = usuarioLogadoService.getUsuarioLogado();
 
-        // cliente cancela somente o próprio agendamento
         if (usuario.getRole() != Role.ADMIN &&
                 !agendamento.getUsuario().getId().equals(usuario.getId())) {
             throw new BusinessException("Você não pode cancelar esse agendamento");
@@ -107,7 +102,6 @@ public class AgendamentoService {
 
         Usuario usuario = usuarioLogadoService.getUsuarioLogado();
 
-        // somente admin
         if (usuario.getRole() != Role.ADMIN) {
             throw new BusinessException("Apenas ADMIN pode finalizar agendamentos");
         }
@@ -123,5 +117,37 @@ public class AgendamentoService {
         agendamento.setStatus(StatusAgendamento.FINALIZADO);
 
         repository.save(agendamento);
+    }
+
+    // agendamento
+    public List<String> listarHorariosDisponiveis(LocalDate data) {
+
+        if (data.isBefore(LocalDate.now())) {
+            throw new BusinessException("Não é possível consultar horários no passado");
+        }
+
+        List<LocalTime> horariosPadrao = List.of(
+                LocalTime.of(8, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0),
+                LocalTime.of(13, 0),
+                LocalTime.of(14, 0),
+                LocalTime.of(15, 0),
+                LocalTime.of(16, 0),
+                LocalTime.of(17, 0)
+        );
+
+        List<Agendamento> agendamentos = repository.findByData(data);
+
+        List<LocalTime> ocupados = agendamentos.stream()
+                .filter(a -> a.getStatus() != StatusAgendamento.CANCELADO)
+                .map(Agendamento::getHorario)
+                .toList();
+
+        return horariosPadrao.stream()
+                .filter(h -> !ocupados.contains(h))
+                .map(LocalTime::toString)
+                .toList();
     }
 }
