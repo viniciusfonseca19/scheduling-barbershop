@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -47,5 +48,14 @@ public class AgendamentoController {
     public ResponseEntity<Void> finalizar(@PathVariable Long id) {
         service.finalizarAgendamento(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // agendamento
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/disponiveis")
+    public ResponseEntity<List<String>> listarHorariosDisponiveis(
+            @RequestParam LocalDate data
+    ) {
+        return ResponseEntity.ok(service.listarHorariosDisponiveis(data));
     }
 }
