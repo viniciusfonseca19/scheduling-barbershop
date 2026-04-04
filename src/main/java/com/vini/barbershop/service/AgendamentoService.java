@@ -85,13 +85,42 @@ public class AgendamentoService {
 
         Usuario usuario = usuarioLogadoService.getUsuarioLogado();
 
-        // CLIENTE só cancela o próprio
+        // cliente cancela somente o próprio agendamento
         if (usuario.getRole() != Role.ADMIN &&
                 !agendamento.getUsuario().getId().equals(usuario.getId())) {
             throw new BusinessException("Você não pode cancelar esse agendamento");
         }
 
+        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new BusinessException("Agendamento já está cancelado");
+        }
+
         agendamento.setStatus(StatusAgendamento.CANCELADO);
+
+        repository.save(agendamento);
+    }
+
+    public void finalizarAgendamento(Long id) {
+
+        Agendamento agendamento = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Agendamento não encontrado"));
+
+        Usuario usuario = usuarioLogadoService.getUsuarioLogado();
+
+        // somente admin
+        if (usuario.getRole() != Role.ADMIN) {
+            throw new BusinessException("Apenas ADMIN pode finalizar agendamentos");
+        }
+
+        if (agendamento.getStatus() == StatusAgendamento.CANCELADO) {
+            throw new BusinessException("Não é possível finalizar um agendamento cancelado");
+        }
+
+        if (agendamento.getStatus() == StatusAgendamento.FINALIZADO) {
+            throw new BusinessException("Agendamento já foi finalizado");
+        }
+
+        agendamento.setStatus(StatusAgendamento.FINALIZADO);
 
         repository.save(agendamento);
     }
