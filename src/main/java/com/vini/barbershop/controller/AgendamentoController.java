@@ -17,7 +17,6 @@ public class AgendamentoController {
 
     private final AgendamentoService service;
 
-    // qualquer usuário logado pode agendar
     @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<AgendamentoResponseDTO> criar(@RequestBody AgendamentoRequestDTO dto) {
@@ -30,7 +29,6 @@ public class AgendamentoController {
         return ResponseEntity.ok(service.listarMeusAgendamentos());
     }
 
-    // somente ADMIN pode ver todos agendamentos
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<AgendamentoResponseDTO>> listarTodos() {
@@ -41,6 +39,13 @@ public class AgendamentoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> cancelar(@PathVariable Long id) {
         service.cancelarAgendamento(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/finalizar")
+    public ResponseEntity<Void> finalizar(@PathVariable Long id) {
+        service.finalizarAgendamento(id);
         return ResponseEntity.noContent().build();
     }
 }
