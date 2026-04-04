@@ -1,6 +1,7 @@
 package com.vini.barbershop.repository;
 
 import com.vini.barbershop.entity.Agendamento;
+import com.vini.barbershop.entity.enums.StatusAgendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -14,4 +15,8 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     List<Agendamento> findByUsuarioId(Long usuarioId);
 
     List<Agendamento> findByData(LocalDate data);
+
+    List<Agendamento> findByStatus(StatusAgendamento status);
+
+    List<Agendamento> findByUsuarioIdAndStatus(Long usuarioId, StatusAgendamento status);
 }

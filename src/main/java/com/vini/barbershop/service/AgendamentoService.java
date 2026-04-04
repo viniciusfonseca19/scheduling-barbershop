@@ -74,6 +74,24 @@ public class AgendamentoService {
                 .toList();
     }
 
+    // histórico com filtro por status
+    public List<AgendamentoResponseDTO> listarPorStatus(StatusAgendamento status) {
+
+        Usuario usuario = usuarioLogadoService.getUsuarioLogado();
+
+        List<Agendamento> agendamentos;
+
+        if (usuario.getRole() == Role.ADMIN) {
+            agendamentos = repository.findByStatus(status);
+        } else {
+            agendamentos = repository.findByUsuarioIdAndStatus(usuario.getId(), status);
+        }
+
+        return agendamentos.stream()
+                .map(mapper::toResponseDTO)
+                .toList();
+    }
+
     public void cancelarAgendamento(Long id) {
 
         Agendamento agendamento = repository.findById(id)

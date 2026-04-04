@@ -2,6 +2,7 @@ package com.vini.barbershop.controller;
 
 import com.vini.barbershop.dto.request.AgendamentoRequestDTO;
 import com.vini.barbershop.dto.response.AgendamentoResponseDTO;
+import com.vini.barbershop.entity.enums.StatusAgendamento;
 import com.vini.barbershop.service.AgendamentoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +35,15 @@ public class AgendamentoController {
     @GetMapping
     public ResponseEntity<List<AgendamentoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarMeusAgendamentos());
+    }
+
+    // filtro por status
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/status")
+    public ResponseEntity<List<AgendamentoResponseDTO>> listarPorStatus(
+            @RequestParam StatusAgendamento status
+    ) {
+        return ResponseEntity.ok(service.listarPorStatus(status));
     }
 
     @PreAuthorize("isAuthenticated()")
