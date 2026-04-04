@@ -1,5 +1,6 @@
 package com.vini.barbershop.entity;
 
+import com.vini.barbershop.entity.enums.StatusAgendamento;
 import jakarta.persistence.*;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
@@ -36,4 +37,7 @@ public class Agendamento {
 
     @NotBlank
     private String tipoCorte;
+
+    @Enumerated(EnumType.STRING)
+    private StatusAgendamento status;
 }
