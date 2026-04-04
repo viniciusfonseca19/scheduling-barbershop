@@ -1,5 +1,6 @@
 package com.vini.barbershop.controller;
 
+import com.vini.barbershop.dto.request.AgendamentoRequestDTO;
 import com.vini.barbershop.dto.response.AgendamentoResponseDTO;
 import com.vini.barbershop.service.AgendamentoService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,12 @@ public class AgendamentoController {
 
     // qualquer usuário logado pode agendar
     @PreAuthorize("isAuthenticated()")
+    @PostMapping
+    public ResponseEntity<AgendamentoResponseDTO> criar(@RequestBody AgendamentoRequestDTO dto) {
+        return ResponseEntity.ok(service.criarAgendamento(dto));
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<List<AgendamentoResponseDTO>> listarMeus() {
         return ResponseEntity.ok(service.listarMeusAgendamentos());
@@ -28,5 +35,12 @@ public class AgendamentoController {
     @GetMapping
     public ResponseEntity<List<AgendamentoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(service.listarMeusAgendamentos());
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> cancelar(@PathVariable Long id) {
+        service.cancelarAgendamento(id);
+        return ResponseEntity.noContent().build();
     }
 }
